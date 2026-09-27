@@ -14,6 +14,7 @@ Features:
 Run with:  streamlit run dashboard/app.py
 """
 
+import base64
 import json
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -30,7 +31,7 @@ import yaml
 # Page configuration
 # ---------------------------------------------------------------------------
 st.set_page_config(
-    page_title="Djezzy Network Traffic Forecasting & Planning",
+    page_title="Djezzy Network Traffic Forecasting & Capacity Planning Platform",
     page_icon="📡",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -104,6 +105,15 @@ def load_feature_importance(path: str) -> pd.DataFrame:
     if not p.exists():
         return pd.DataFrame()
     return pd.read_csv(p)
+
+
+@st.cache_data
+def get_djezzy_logo_b64() -> str:
+    logo_path = Path("dashboard/assets/djezzy_logo.svg")
+    if logo_path.exists():
+        with open(logo_path, "rb") as f:
+            return base64.b64encode(f.read()).decode("utf-8")
+    return ""
 
 
 # ---------------------------------------------------------------------------
@@ -261,7 +271,19 @@ def inject_custom_css():
 # Sidebar Filters Component
 # ---------------------------------------------------------------------------
 def render_sidebar(df_cleaned: pd.DataFrame, cfg: dict) -> dict:
-    st.sidebar.markdown(f"### 📡 **Djezzy Control Center**")
+    logo_b64 = get_djezzy_logo_b64()
+    if logo_b64:
+        st.sidebar.markdown(f"""
+        <div style="display:flex; align-items:center; gap:12px; padding: 4px 0 14px 0;">
+            <img src="data:image/svg+xml;base64,{logo_b64}" style="height:44px; width:auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));" alt="Djezzy" />
+            <div>
+                <div style="font-weight:800; font-size:1.15rem; color:{DJEZZY_DARK}; letter-spacing:-0.4px;">Djezzy Operations</div>
+                <div style="font-size:0.75rem; color:{DJEZZY_MUTED}; font-weight:600;">RAN Capacity &amp; Planning Center</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.sidebar.markdown(f"### 📡 **Djezzy Control Center**")
     st.sidebar.markdown("---")
 
     # Horizon Selector
@@ -337,14 +359,22 @@ def render_sidebar(df_cleaned: pd.DataFrame, cfg: dict) -> dict:
 # Header Component
 # ---------------------------------------------------------------------------
 def render_header():
+    logo_b64 = get_djezzy_logo_b64()
+    logo_html = ""
+    if logo_b64:
+        logo_html = f'<img src="data:image/svg+xml;base64,{logo_b64}" style="height: 54px; width: auto; margin-right: 18px; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));" alt="Djezzy Logo" />'
+
     st.markdown(f"""
     <div class="djezzy-header">
-        <div>
-            <h1 class="djezzy-title">djezzy <span>Network Forecasting</span></h1>
-            <div class="djezzy-subtitle">AI-Driven Radio Traffic Forecasting &amp; Congestion Prevention Platform</div>
+        <div style="display:flex; align-items:center;">
+            {logo_html}
+            <div>
+                <h1 class="djezzy-title">Djezzy <span>Network Forecasting</span></h1>
+                <div class="djezzy-subtitle">AI-Driven Radio Traffic Forecasting &amp; Capacity Planning Platform</div>
+            </div>
         </div>
         <div>
-            <span class="djezzy-badge">OPERATIONAL SUITE</span>
+            <span class="djezzy-badge">NOC / RAN SUITE</span>
         </div>
     </div>
     <div class="disclaimer-banner">
@@ -1038,6 +1068,14 @@ def main():
         render_performance_tab(cfg)
     with tabs[5]:
         render_quality_tab(df_cleaned, cfg)
+
+    # Footer Branding
+    st.markdown(f"""
+    <div style="margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid {DJEZZY_BORDER}; text-align: center; color: {DJEZZY_MUTED}; font-size: 0.82rem;">
+        <b>Djezzy Network Forecasting &amp; Capacity Planning Platform</b> · Direction de l'Ingénierie &amp; Planification Réseau · Optimum Telecom Algérie (OTA)
+        <br><span style="font-size: 0.74rem; color: #8C96A0;">Internal Decision-Support Tool · 100% Synthetic Telemetry for Benchmark Modeling</span>
+    </div>
+    """, unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
