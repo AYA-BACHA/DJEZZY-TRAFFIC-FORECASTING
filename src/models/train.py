@@ -271,22 +271,34 @@ def run_training_pipeline(config_path: str = "config/config.yaml") -> Dict:
             log.info("  Fold %d metrics: %s", fold_idx, fold_metrics)
 
         # ----------------------------------------------------------------
-        # Final models trained on all pre-holdout data
+        # Final models trained strictly on pre-holdout data
+        # Internal pre-holdout validation (Sep-Oct 2025) used for early stopping
         # ----------------------------------------------------------------
-        log.info("Training FINAL models on all pre-holdout data for target=%s", target)
+        log.info("Training FINAL models on pre-holdout data for target=%s", target)
         holdout_ts = pd.Timestamp(holdout_start).tz_localize("Africa/Algiers")
         pre_holdout_mask = df_model["timestamp"] < holdout_ts
         X_final_tr = df_model.loc[pre_holdout_mask, feat_cols].values
         y_final_tr = df_model.loc[pre_holdout_mask, target].values
 
+        # Pre-holdout internal validation window (2 months prior to holdout)
+        val_internal_start = holdout_ts - pd.DateOffset(months=test_months)
+        tr_internal_mask = df_model["timestamp"] < val_internal_start
+        val_internal_mask = (df_model["timestamp"] >= val_internal_start) & (df_model["timestamp"] < holdout_ts)
+        
+        X_tr_internal = df_model.loc[tr_internal_mask, feat_cols].values
+        y_tr_internal = df_model.loc[tr_internal_mask, target].values
+        X_val_internal = df_model.loc[val_internal_mask, feat_cols].values
+        y_val_internal = df_model.loc[val_internal_mask, target].values
+
         holdout_mask = df_model["timestamp"] >= holdout_ts
         X_holdout = df_model.loc[holdout_mask, feat_cols].values
         y_holdout = df_model.loc[holdout_mask, target].values
-        log.info("  Holdout size: %d rows", len(y_holdout))
+        log.info("  Pre-holdout train: %d rows | Internal val: %d rows | Holdout: %d rows",
+                 len(y_tr_internal), len(y_val_internal), len(y_holdout))
 
         holdout_metrics = {}
 
-        # 1. Ridge
+        # 1. Ridge (trained on all pre-holdout)
         log.info("  Fitting Ridge...")
         ridge_final = train_ridge(X_final_tr, y_final_tr, cfg)
         if len(y_holdout) > 0:
@@ -295,7 +307,7 @@ def run_training_pipeline(config_path: str = "config/config.yaml") -> Dict:
         with open(ridge_path, "wb") as f:
             pickle.dump({"model": ridge_final, "feature_cols": feat_cols, "target": target}, f)
 
-        # 2. Random Forest
+        # 2. Random Forest (trained on all pre-holdout)
         log.info("  Fitting Random Forest...")
         rf_final = train_rf(X_final_tr, y_final_tr, cfg)
         if len(y_holdout) > 0:
@@ -304,24 +316,26 @@ def run_training_pipeline(config_path: str = "config/config.yaml") -> Dict:
         with open(rf_path, "wb") as f:
             pickle.dump({"model": rf_final, "feature_cols": feat_cols, "target": target}, f)
 
-        # 3. LightGBM
+        # 3. LightGBM (trained with internal pre-holdout validation)
         lgb_final = None
-        if HAS_LGB and len(y_holdout) > 0:
-            log.info("  Fitting LightGBM...")
-            lgb_final = train_lgb(X_final_tr, y_final_tr, X_holdout, y_holdout, cfg)
+        if HAS_LGB and len(y_val_internal) > 0:
+            log.info("  Fitting LightGBM (early stopping on internal pre-holdout val)...")
+            lgb_final = train_lgb(X_tr_internal, y_tr_internal, X_val_internal, y_val_internal, cfg)
             if lgb_final:
-                holdout_metrics["lightgbm"] = compute_metrics(y_holdout, lgb_final.predict(X_holdout), "lightgbm")
+                if len(y_holdout) > 0:
+                    holdout_metrics["lightgbm"] = compute_metrics(y_holdout, lgb_final.predict(X_holdout), "lightgbm")
                 lgb_path = models_dir / f"lgb_{target}.pkl"
                 with open(lgb_path, "wb") as f:
                     pickle.dump({"model": lgb_final, "feature_cols": feat_cols, "target": target}, f)
 
-        # 4. XGBoost
+        # 4. XGBoost (trained with internal pre-holdout validation)
         xgb_final = None
-        if HAS_XGB and len(y_holdout) > 0:
-            log.info("  Fitting XGBoost...")
-            xgb_final = train_xgb(X_final_tr, y_final_tr, X_holdout, y_holdout, cfg)
+        if HAS_XGB and len(y_val_internal) > 0:
+            log.info("  Fitting XGBoost (early stopping on internal pre-holdout val)...")
+            xgb_final = train_xgb(X_tr_internal, y_tr_internal, X_val_internal, y_val_internal, cfg)
             if xgb_final:
-                holdout_metrics["xgboost"] = compute_metrics(y_holdout, xgb_final.predict(X_holdout), "xgboost")
+                if len(y_holdout) > 0:
+                    holdout_metrics["xgboost"] = compute_metrics(y_holdout, xgb_final.predict(X_holdout), "xgboost")
                 xgb_path = models_dir / f"xgb_{target}.pkl"
                 with open(xgb_path, "wb") as f:
                     pickle.dump({"model": xgb_final, "feature_cols": feat_cols, "target": target}, f)

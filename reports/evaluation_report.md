@@ -8,10 +8,15 @@
 
 The primary objective is to accurately forecast cell-level radio network traffic volume (DL Traffic) and load (PRB Utilisation) 24 hours and 7 days ahead without lookahead leakage, flagging congestion before it occurs.
 
-### Success Criterion Verification
-- **Target 1: DL Traffic Volume (GB/h)**: Gradient boosted trees (LightGBM) outperform the best baseline across both 24h and 7d horizons on the untouched holdout set.
-- **Target 2: PRB Utilisation (%)**: LightGBM achieves lower MAE and WAPE than seasonal naive and moving average baselines on the untouched holdout set.
-- **Leakage Audit**: Verified zero temporal lookahead leakage via recursive multi-step forecasting where $t-1$ is never peeked from the future.
+### Success Criterion Verification & Model Selection
+- **Target 1: DL Traffic Volume (GB/h)**:
+  - **24h Horizon**: **Random Forest** (MAE 0.9444, WAPE 26.38%) and **LightGBM** (MAE 1.3473, WAPE 37.64%) clearly beat the best baseline (**Seasonal Naive Yesterday** with MAE 2.1648, WAPE 60.47%), achieving a **56.4% error reduction**.
+  - **7d Horizon**: **Seasonal Naive (Last Week)** (MAE 2.2517, WAPE 57.93%) is the superior reference model. Due to recursive multi-step error compounding across 168 autoregressive hours, tree-based models compound past predictions without direct multi-step horizon heads. Seasonal Naive is honestly reported as the operational reference model for 7d DL traffic.
+- **Target 2: PRB Utilisation (%)**:
+  - **24h Horizon**: **LightGBM** (MAE 3.8813, WAPE 9.03%) beats the best baseline (**Seasonal Naive Yesterday** with MAE 5.1455, WAPE 11.97%), delivering a **24.6% error reduction**.
+  - **7d Horizon**: **LightGBM** (MAE 4.0725, WAPE 9.52%) beats the best baseline (**Seasonal Naive Last Week** with MAE 5.9476, WAPE 13.90%), delivering a **31.5% error reduction**.
+- **Temporal Leakage Audit**: Confirmed zero temporal lookahead leakage via strict recursive multi-step forecasting where $t-1$ through $t-168$ are populated purely from historical observations prior to origin and subsequent model predictions.
+- **Note on MAPE vs WAPE**: Standard unweighted MAPE ($\frac{1}{N} \sum \frac{|y - \hat{y}|}{y}$) is mathematically distorted by off-peak hours (e.g., 03:00–05:00 AM) where traffic drops to near-zero ($y \approx 0.02\text{ GB}$). A minor error of $0.15\text{ GB}$ produces an inflated single-point relative error of $750\%$. Therefore, **Weighted Absolute Percentage Error (WAPE)** ($\frac{\sum |y - \hat{y}|}{\sum y}$), which volume-weights errors across the network, is the telecom industry standard metric and reflects true commercial accuracy.
 
 ---
 
