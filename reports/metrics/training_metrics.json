@@ -1,0 +1,388 @@
+{
+  "dl_traffic_volume_gb": {
+    "cv_results": [
+      {
+        "fold": 0,
+        "metrics": {
+          "ridge": {
+            "model": "ridge",
+            "MAE": 2.6751,
+            "RMSE": 68.8203,
+            "MAPE": 702.1,
+            "sMAPE": 86.01,
+            "WAPE": 68.66
+          },
+          "lightgbm": {
+            "model": "lightgbm",
+            "MAE": 1.6416,
+            "RMSE": 60.0312,
+            "MAPE": 504.26,
+            "sMAPE": 65.49,
+            "WAPE": 42.14
+          },
+          "xgboost": {
+            "model": "xgboost",
+            "MAE": 2.3219,
+            "RMSE": 62.2775,
+            "MAPE": 174.1,
+            "sMAPE": 47.78,
+            "WAPE": 59.6
+          }
+        }
+      },
+      {
+        "fold": 1,
+        "metrics": {
+          "ridge": {
+            "model": "ridge",
+            "MAE": 2.6883,
+            "RMSE": 64.6428,
+            "MAPE": 773.3,
+            "sMAPE": 85.34,
+            "WAPE": 66.07
+          },
+          "lightgbm": {
+            "model": "lightgbm",
+            "MAE": 8.0658,
+            "RMSE": 56.3101,
+            "MAPE": 5629.67,
+            "sMAPE": 130.11,
+            "WAPE": 198.22
+          },
+          "xgboost": {
+            "model": "xgboost",
+            "MAE": 2.5545,
+            "RMSE": 58.8206,
+            "MAPE": 169.2,
+            "sMAPE": 47.74,
+            "WAPE": 62.78
+          }
+        }
+      },
+      {
+        "fold": 2,
+        "metrics": {
+          "ridge": {
+            "model": "ridge",
+            "MAE": 7.7683,
+            "RMSE": 91.4251,
+            "MAPE": 768.53,
+            "sMAPE": 87.99,
+            "WAPE": 24.02
+          },
+          "lightgbm": {
+            "model": "lightgbm",
+            "MAE": 6.7688,
+            "RMSE": 80.5335,
+            "MAPE": 1060.34,
+            "sMAPE": 84.16,
+            "WAPE": 20.93
+          },
+          "xgboost": {
+            "model": "xgboost",
+            "MAE": 7.9204,
+            "RMSE": 92.3727,
+            "MAPE": 175.74,
+            "sMAPE": 47.05,
+            "WAPE": 24.49
+          }
+        }
+      }
+    ],
+    "holdout_metrics": {
+      "ridge": {
+        "model": "ridge",
+        "MAE": 3.0569,
+        "RMSE": 76.7117,
+        "MAPE": 580.32,
+        "sMAPE": 82.54,
+        "WAPE": 71.23
+      },
+      "random_forest": {
+        "model": "random_forest",
+        "MAE": 2.2687,
+        "RMSE": 69.1638,
+        "MAPE": 58.11,
+        "sMAPE": 27.17,
+        "WAPE": 52.87
+      },
+      "lightgbm": {
+        "model": "lightgbm",
+        "MAE": 1.9167,
+        "RMSE": 67.3109,
+        "MAPE": 286.76,
+        "sMAPE": 54.8,
+        "WAPE": 44.66
+      },
+      "xgboost": {
+        "model": "xgboost",
+        "MAE": 2.7678,
+        "RMSE": 69.8454,
+        "MAPE": 155.09,
+        "sMAPE": 45.49,
+        "WAPE": 64.5
+      }
+    },
+    "n_features": 65,
+    "feature_cols": [
+      "band",
+      "azimuth",
+      "wilaya_code",
+      "hour",
+      "day_of_week",
+      "day_of_month",
+      "month",
+      "quarter",
+      "week_of_year",
+      "year",
+      "day_of_year",
+      "hour_sin",
+      "hour_cos",
+      "dow_sin",
+      "dow_cos",
+      "month_sin",
+      "month_cos",
+      "is_weekend",
+      "is_ramadan",
+      "is_eid_al_fitr",
+      "is_eid_al_adha",
+      "is_eid",
+      "is_bac_exam",
+      "is_bem_exam",
+      "is_exam_period",
+      "is_summer",
+      "is_football_match",
+      "post_5g_launch",
+      "is_public_holiday",
+      "is_special_day",
+      "ramadan_hour",
+      "technology_ord",
+      "area_type_ord",
+      "dl_traffic_volume_gb_lag1h",
+      "dl_traffic_volume_gb_lag2h",
+      "dl_traffic_volume_gb_lag3h",
+      "dl_traffic_volume_gb_lag6h",
+      "dl_traffic_volume_gb_lag12h",
+      "dl_traffic_volume_gb_lag24h",
+      "dl_traffic_volume_gb_lag48h",
+      "dl_traffic_volume_gb_lag168h",
+      "dl_traffic_volume_gb_roll_mean_6h",
+      "dl_traffic_volume_gb_roll_std_6h",
+      "dl_traffic_volume_gb_roll_mean_24h",
+      "dl_traffic_volume_gb_roll_std_24h",
+      "dl_traffic_volume_gb_roll_mean_168h",
+      "dl_traffic_volume_gb_roll_std_168h",
+      "dl_traffic_volume_gb_same_hour_1d",
+      "dl_traffic_volume_gb_same_hour_1w",
+      "prb_utilization_pct_lag1h",
+      "prb_utilization_pct_lag2h",
+      "prb_utilization_pct_lag3h",
+      "prb_utilization_pct_lag6h",
+      "prb_utilization_pct_lag12h",
+      "prb_utilization_pct_lag24h",
+      "prb_utilization_pct_lag48h",
+      "prb_utilization_pct_lag168h",
+      "prb_utilization_pct_roll_mean_6h",
+      "prb_utilization_pct_roll_std_6h",
+      "prb_utilization_pct_roll_mean_24h",
+      "prb_utilization_pct_roll_std_24h",
+      "prb_utilization_pct_roll_mean_168h",
+      "prb_utilization_pct_roll_std_168h",
+      "prb_utilization_pct_same_hour_1d",
+      "prb_utilization_pct_same_hour_1w"
+    ]
+  },
+  "prb_utilization_pct": {
+    "cv_results": [
+      {
+        "fold": 0,
+        "metrics": {
+          "ridge": {
+            "model": "ridge",
+            "MAE": 4.6165,
+            "RMSE": 7.1494,
+            "MAPE": 25.22,
+            "sMAPE": 13.98,
+            "WAPE": 11.06
+          },
+          "lightgbm": {
+            "model": "lightgbm",
+            "MAE": 3.8086,
+            "RMSE": 6.2144,
+            "MAPE": 15.57,
+            "sMAPE": 11.42,
+            "WAPE": 9.12
+          },
+          "xgboost": {
+            "model": "xgboost",
+            "MAE": 3.8987,
+            "RMSE": 6.3049,
+            "MAPE": 16.6,
+            "sMAPE": 11.68,
+            "WAPE": 9.34
+          }
+        }
+      },
+      {
+        "fold": 1,
+        "metrics": {
+          "ridge": {
+            "model": "ridge",
+            "MAE": 4.6128,
+            "RMSE": 7.0162,
+            "MAPE": 22.96,
+            "sMAPE": 13.81,
+            "WAPE": 10.75
+          },
+          "lightgbm": {
+            "model": "lightgbm",
+            "MAE": 3.8334,
+            "RMSE": 6.1161,
+            "MAPE": 16.17,
+            "sMAPE": 11.36,
+            "WAPE": 8.93
+          },
+          "xgboost": {
+            "model": "xgboost",
+            "MAE": 3.9123,
+            "RMSE": 6.1931,
+            "MAPE": 16.73,
+            "sMAPE": 11.57,
+            "WAPE": 9.12
+          }
+        }
+      },
+      {
+        "fold": 2,
+        "metrics": {
+          "ridge": {
+            "model": "ridge",
+            "MAE": 4.8361,
+            "RMSE": 7.4249,
+            "MAPE": 24.41,
+            "sMAPE": 15.06,
+            "WAPE": 12.07
+          },
+          "lightgbm": {
+            "model": "lightgbm",
+            "MAE": 3.8834,
+            "RMSE": 6.3162,
+            "MAPE": 16.56,
+            "sMAPE": 12.02,
+            "WAPE": 9.69
+          },
+          "xgboost": {
+            "model": "xgboost",
+            "MAE": 4.0034,
+            "RMSE": 6.4538,
+            "MAPE": 17.6,
+            "sMAPE": 12.36,
+            "WAPE": 9.99
+          }
+        }
+      }
+    ],
+    "holdout_metrics": {
+      "ridge": {
+        "model": "ridge",
+        "MAE": 4.5959,
+        "RMSE": 7.0691,
+        "MAPE": 19.1,
+        "sMAPE": 15.3,
+        "WAPE": 11.21
+      },
+      "random_forest": {
+        "model": "random_forest",
+        "MAE": 4.171,
+        "RMSE": 6.5228,
+        "MAPE": 18.3,
+        "sMAPE": 13.89,
+        "WAPE": 10.18
+      },
+      "lightgbm": {
+        "model": "lightgbm",
+        "MAE": 3.9383,
+        "RMSE": 6.2878,
+        "MAPE": 16.82,
+        "sMAPE": 13.13,
+        "WAPE": 9.61
+      },
+      "xgboost": {
+        "model": "xgboost",
+        "MAE": 3.9807,
+        "RMSE": 6.3404,
+        "MAPE": 17.09,
+        "sMAPE": 13.21,
+        "WAPE": 9.71
+      }
+    },
+    "n_features": 65,
+    "feature_cols": [
+      "band",
+      "azimuth",
+      "wilaya_code",
+      "hour",
+      "day_of_week",
+      "day_of_month",
+      "month",
+      "quarter",
+      "week_of_year",
+      "year",
+      "day_of_year",
+      "hour_sin",
+      "hour_cos",
+      "dow_sin",
+      "dow_cos",
+      "month_sin",
+      "month_cos",
+      "is_weekend",
+      "is_ramadan",
+      "is_eid_al_fitr",
+      "is_eid_al_adha",
+      "is_eid",
+      "is_bac_exam",
+      "is_bem_exam",
+      "is_exam_period",
+      "is_summer",
+      "is_football_match",
+      "post_5g_launch",
+      "is_public_holiday",
+      "is_special_day",
+      "ramadan_hour",
+      "technology_ord",
+      "area_type_ord",
+      "dl_traffic_volume_gb_lag1h",
+      "dl_traffic_volume_gb_lag2h",
+      "dl_traffic_volume_gb_lag3h",
+      "dl_traffic_volume_gb_lag6h",
+      "dl_traffic_volume_gb_lag12h",
+      "dl_traffic_volume_gb_lag24h",
+      "dl_traffic_volume_gb_lag48h",
+      "dl_traffic_volume_gb_lag168h",
+      "dl_traffic_volume_gb_roll_mean_6h",
+      "dl_traffic_volume_gb_roll_std_6h",
+      "dl_traffic_volume_gb_roll_mean_24h",
+      "dl_traffic_volume_gb_roll_std_24h",
+      "dl_traffic_volume_gb_roll_mean_168h",
+      "dl_traffic_volume_gb_roll_std_168h",
+      "dl_traffic_volume_gb_same_hour_1d",
+      "dl_traffic_volume_gb_same_hour_1w",
+      "prb_utilization_pct_lag1h",
+      "prb_utilization_pct_lag2h",
+      "prb_utilization_pct_lag3h",
+      "prb_utilization_pct_lag6h",
+      "prb_utilization_pct_lag12h",
+      "prb_utilization_pct_lag24h",
+      "prb_utilization_pct_lag48h",
+      "prb_utilization_pct_lag168h",
+      "prb_utilization_pct_roll_mean_6h",
+      "prb_utilization_pct_roll_std_6h",
+      "prb_utilization_pct_roll_mean_24h",
+      "prb_utilization_pct_roll_std_24h",
+      "prb_utilization_pct_roll_mean_168h",
+      "prb_utilization_pct_roll_std_168h",
+      "prb_utilization_pct_same_hour_1d",
+      "prb_utilization_pct_same_hour_1w"
+    ]
+  }
+}

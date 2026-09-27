@@ -1,0 +1,42 @@
+{
+  "dl_traffic_volume_gb": {
+    "24h": {
+      "n_rows": 1872,
+      "n_cells": 78,
+      "forecast_start": "2026-01-01 00:00:00+01:00",
+      "forecast_end": "2026-01-01 23:00:00+01:00",
+      "mean_predicted": 24.006164972947673,
+      "max_predicted": 376.10912588343564,
+      "min_predicted": 0.4433265252062691
+    },
+    "7d": {
+      "n_rows": 13104,
+      "n_cells": 78,
+      "forecast_start": "2026-01-01 00:00:00+01:00",
+      "forecast_end": "2026-01-07 23:00:00+01:00",
+      "mean_predicted": 38.068075001832426,
+      "max_predicted": 494.08391170060435,
+      "min_predicted": 0.4433265252062691
+    }
+  },
+  "prb_utilization_pct": {
+    "24h": {
+      "n_rows": 1872,
+      "n_cells": 78,
+      "forecast_start": "2026-01-01 00:00:00+01:00",
+      "forecast_end": "2026-01-01 23:00:00+01:00",
+      "mean_predicted": 41.67364347627732,
+      "max_predicted": 97.02600681752278,
+      "min_predicted": 7.342564333730451
+    },
+    "7d": {
+      "n_rows": 13104,
+      "n_cells": 78,
+      "forecast_start": "2026-01-01 00:00:00+01:00",
+      "forecast_end": "2026-01-07 23:00:00+01:00",
+      "mean_predicted": 42.668559406530356,
+      "max_predicted": 97.17675949357229,
+      "min_predicted": 7.342564333730451
+    }
+  }
+}

@@ -1,0 +1,5 @@
+target,model,MAE,RMSE,MAPE_pct
+dl_traffic_volume_gb,ridge,3.056899,76.711727,1301.0717
+dl_traffic_volume_gb,lightgbm,1.916709,67.310937,757.8237
+prb_utilization_pct,ridge,4.595874,7.069085,19.0992
+prb_utilization_pct,lightgbm,3.938348,6.287824,16.8198

@@ -1,0 +1,121 @@
+# ============================================================
+# Djezzy Network Traffic Forecasting — Configuration
+# ============================================================
+
+random_seed: 42
+
+# ---------- Paths ----------
+paths:
+  raw_data: "data/raw/djezzy_network_traffic_hourly_2024_2025.csv"
+  processed_data: "data/processed/djezzy_cleaned.parquet"
+  features_data: "data/processed/djezzy_features.parquet"
+  models_dir: "models"
+  reports_dir: "reports"
+  figures_dir: "reports/figures"
+  metrics_dir: "reports/metrics"
+  forecasts_dir: "reports/forecasts"
+  data_quality_report: "reports/data_quality_report.md"
+
+# ---------- Forecast horizons ----------
+forecast:
+  origin: "2026-01-01 00:00:00"
+  origin_tz: "Africa/Algiers"
+  horizons:
+    short: 24       # hours
+    long: 168       # hours (7 days)
+  targets:
+    - dl_traffic_volume_gb
+    - prb_utilization_pct
+
+# ---------- Congestion thresholds ----------
+congestion:
+  warning_pct: 80.0   # CONGESTION alert
+  high_pct: 90.0      # HIGH alert
+
+# ---------- Validation splits ----------
+validation:
+  # Chronological folds
+  n_folds: 3
+  test_months: 2          # each fold tests 2 months
+  final_holdout_start: "2025-11-01"  # untouched until model selection done
+
+# ---------- Algerian calendar events ----------
+calendar:
+  ramadan:
+    - start: "2024-03-11"
+      end: "2024-04-09"
+    - start: "2025-03-01"
+      end: "2025-03-30"
+  eid_al_fitr:
+    - "2024-04-10"
+    - "2024-04-11"
+    - "2025-03-31"
+    - "2025-04-01"
+  eid_al_adha:
+    - "2024-06-16"
+    - "2024-06-17"
+    - "2025-06-06"
+    - "2025-06-07"
+  bac_exams:
+    - start: "2024-06-09"
+      end: "2024-06-13"
+    - start: "2025-06-15"
+      end: "2025-06-19"
+  bem_exams:
+    - start: "2024-06-03"
+      end: "2024-06-05"
+    - start: "2025-06-01"
+      end: "2025-06-03"
+  summer_season:
+    - start: "2024-06-15"
+      end: "2024-09-15"
+    - start: "2025-06-15"
+      end: "2025-09-15"
+  football_matches:
+    - datetime: "2024-01-15 21:00"
+      name: "AFCON_2023_match1"
+    - datetime: "2024-01-20 15:00"
+      name: "AFCON_2023_match2"
+    - datetime: "2024-01-23 21:00"
+      name: "AFCON_2023_match3"
+    - datetime: "2025-10-09 17:00"
+      name: "WC2026_qualifier"
+    - datetime: "2025-12-24 16:00"
+      name: "AFCON_2025_match1"
+    - datetime: "2025-12-28 18:30"
+      name: "AFCON_2025_match2"
+    - datetime: "2025-12-31 17:00"
+      name: "AFCON_2025_match3"
+  g5_launch: "2025-12-03"
+  fixed_holidays:
+    - "01-01"   # New Year
+    - "01-12"   # Yennayer (Amazigh New Year)
+    - "05-01"   # Labour Day
+    - "07-05"   # Independence Day
+    - "11-01"   # Revolution Day
+
+# ---------- Model parameters ----------
+models:
+  ridge:
+    alpha: 1.0
+  random_forest:
+    n_estimators: 200
+    max_depth: 12
+    min_samples_leaf: 5
+    n_jobs: -1
+  xgboost:
+    n_estimators: 500
+    learning_rate: 0.05
+    max_depth: 6
+    subsample: 0.8
+    colsample_bytree: 0.8
+    n_jobs: -1
+    early_stopping_rounds: 50
+  lightgbm:
+    n_estimators: 500
+    learning_rate: 0.05
+    max_depth: 6
+    num_leaves: 63
+    subsample: 0.8
+    colsample_bytree: 0.8
+    n_jobs: -1

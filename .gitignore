@@ -8,17 +8,24 @@ data/external/*
 !data/processed/.gitkeep
 !data/external/.gitkeep
 
-# Models
-models/*
+# Models (re-generated via src.models.train)
+models/*.pkl
+models/*.joblib
 !models/.gitkeep
 
-# Reports that are regenerated, not authored
-reports/figures/*
-reports/metrics/*
-reports/forecasts/*
+# Standalone interactive HTML reports (regenerated via src.visualization.plots)
+reports/figures/*.html
 !reports/figures/.gitkeep
-!reports/metrics/.gitkeep
+
+# Large redundant CSV forecast dumps (compact .parquet and .json are retained for dashboard)
+reports/forecasts/*.csv
 !reports/forecasts/.gitkeep
+
+# Scratch files
+*.tmp
+*.log
+brief_text.txt
+pdf_extracted.txt
 
 # Python
 __pycache__/
