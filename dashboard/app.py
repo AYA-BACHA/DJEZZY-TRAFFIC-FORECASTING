@@ -32,29 +32,28 @@ import yaml
 # ---------------------------------------------------------------------------
 st.set_page_config(
     page_title="Djezzy Network Traffic Forecasting & Capacity Planning Platform",
-    page_icon="📡",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # ---------------------------------------------------------------------------
-# Visual Tokens (Djezzy Red / Charcoal / White)
+# Visual Tokens: Enterprise Design System (Tailwind Slate / Zinc + Djezzy Accent)
 # ---------------------------------------------------------------------------
 DJEZZY_RED = "#E02B20"
-DJEZZY_DARK = "#14171A"
+DJEZZY_DARK = "#0F172A"       # Slate 900
 DJEZZY_CARD = "#FFFFFF"
-DJEZZY_BORDER = "#E2E6EA"
-DJEZZY_TEXT = "#14171A"
-DJEZZY_MUTED = "#5A626A"
-WARNING_AMBER = "#FF9800"
-CRITICAL_RED = "#D32F2F"
-SUCCESS_GREEN = "#2E7D32"
+DJEZZY_BORDER = "#E2E8F0"     # Slate 200
+DJEZZY_TEXT = "#0F172A"       # Slate 900
+DJEZZY_MUTED = "#64748B"      # Slate 500
+WARNING_AMBER = "#D97706"     # Amber 600
+CRITICAL_RED = "#DC2626"      # Red 600
+SUCCESS_GREEN = "#16A34A"     # Green 600
 
 TECH_COLORS = {
-    "2G": "#7A828A",
-    "3G": "#4A525A",
-    "4G": "#E02B20",
-    "5G": "#14171A",
+    "2G": "#94A3B8",  # Slate 400
+    "3G": "#64748B",  # Slate 500
+    "4G": "#E02B20",  # Djezzy Red
+    "5G": "#0F172A",  # Slate 900
 }
 
 
@@ -117,77 +116,104 @@ def get_djezzy_logo_b64() -> str:
 
 
 # ---------------------------------------------------------------------------
-# Custom CSS: Djezzy Telecom Visual Identity
+# Custom CSS: Enterprise Design System (Refined Typography & Spacing)
 # ---------------------------------------------------------------------------
 def inject_custom_css():
     st.markdown(f"""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
     html, body, [class*="css"] {{
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         color: {DJEZZY_TEXT};
     }}
 
-    /* Main Branding Header */
+    /* Main Branding Header - Clean Minimal Container */
     .djezzy-header {{
-        background: {DJEZZY_DARK};
-        border-left: 6px solid {DJEZZY_RED};
-        padding: 1.25rem 2rem;
+        background: #09090B;
+        border: 1px solid #27272A;
+        padding: 1.25rem 1.75rem;
         border-radius: 8px;
-        margin-bottom: 1.25rem;
+        margin-bottom: 1rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.08);
     }}
     .djezzy-title {{
-        color: #FFFFFF;
-        font-size: 1.75rem;
-        font-weight: 800;
+        color: #F8FAFC;
+        font-size: 1.25rem;
+        font-weight: 600;
         margin: 0;
-        letter-spacing: -0.5px;
+        letter-spacing: -0.02em;
     }}
     .djezzy-title span {{
         color: {DJEZZY_RED};
     }}
     .djezzy-subtitle {{
-        color: #9AA3AB;
-        font-size: 0.9rem;
-        margin-top: 0.3rem;
+        color: #71717A;
+        font-size: 0.8125rem;
+        font-weight: 400;
+        margin-top: 0.25rem;
     }}
     .djezzy-badge {{
-        background: {DJEZZY_RED};
-        color: #FFFFFF;
-        padding: 0.4rem 0.9rem;
-        border-radius: 20px;
-        font-weight: 700;
-        font-size: 0.8rem;
-        letter-spacing: 0.5px;
-    }}
-
-    /* Synthetic Data Disclaimer */
-    .disclaimer-banner {{
-        background: #FFF5F5;
-        border: 1px solid #FFD0D0;
-        border-left: 5px solid {DJEZZY_RED};
-        border-radius: 6px;
-        padding: 0.75rem 1.25rem;
-        font-size: 0.85rem;
+        background: #18181B;
+        color: #A1A1AA;
+        border: 1px solid #27272A;
+        padding: 0.25rem 0.625rem;
+        border-radius: 9999px;
         font-weight: 500;
-        color: #9C1414;
-        margin-bottom: 1.5rem;
+        font-size: 0.6875rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
     }}
 
-    /* Section Subheaders */
-    .section-title {{
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: {DJEZZY_DARK};
-        border-bottom: 2px solid {DJEZZY_RED};
-        padding-bottom: 0.35rem;
+    /* Synthetic Data Disclaimer - Subtle Muted Notice */
+    .disclaimer-banner {{
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 6px;
+        padding: 0.625rem 1rem;
+        font-size: 0.8125rem;
+        font-weight: 400;
+        color: #475569;
         margin-bottom: 1.25rem;
-        margin-top: 0.5rem;
+        line-height: 1.4;
+    }}
+    .disclaimer-banner strong {{
+        color: #0F172A;
+        font-weight: 600;
+    }}
+
+    /* Section Subheaders - Typographic Hierarchy Without Colored Bars */
+    .section-title {{
+        font-size: 1.0625rem;
+        font-weight: 600;
+        color: {DJEZZY_DARK};
+        letter-spacing: -0.01em;
+        border-bottom: 1px solid #E2E8F0;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.25rem;
+        margin-top: 0.75rem;
+    }}
+
+    .subsection-title {{
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: {DJEZZY_DARK};
+        letter-spacing: -0.01em;
+        margin-top: 1rem;
+        margin-bottom: 0.625rem;
+    }}
+
+    /* Scope Banner */
+    .scope-banner {{
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 6px;
+        padding: 0.625rem 1rem;
+        font-size: 0.8125rem;
+        color: #334155;
+        margin-bottom: 1rem;
     }}
 
     /* Card styling */
@@ -195,40 +221,62 @@ def inject_custom_css():
         background: #FFFFFF;
         border: 1px solid {DJEZZY_BORDER};
         border-radius: 8px;
-        padding: 1rem 1.25rem;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        padding: 1.25rem 1.5rem;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
     }}
 
-    /* Status Badges */
+    /* Status Badges - Clean Pill Design */
+    .status-badge {{
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.625rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        letter-spacing: 0.025em;
+        text-transform: uppercase;
+    }}
     .badge-normal {{
-        background: #E8F5E9;
-        color: {SUCCESS_GREEN};
-        border: 1px solid #C8E6C9;
-        padding: 0.35rem 0.8rem;
-        border-radius: 6px;
-        font-weight: 700;
-        font-size: 0.85rem;
-        display: inline-block;
+        background: #F0FDF4;
+        color: #166534;
+        border: 1px solid #BBF7D0;
     }}
     .badge-warning {{
-        background: #FFF3E0;
-        color: #E65100;
-        border: 1px solid #FFE0B2;
-        padding: 0.35rem 0.8rem;
-        border-radius: 6px;
-        font-weight: 700;
-        font-size: 0.85rem;
-        display: inline-block;
+        background: #FFFBEB;
+        color: #92400E;
+        border: 1px solid #FDE68A;
     }}
     .badge-high {{
-        background: #FFEBEE;
-        color: {CRITICAL_RED};
-        border: 1px solid #FFCDD2;
-        padding: 0.35rem 0.8rem;
+        background: #FEF2F2;
+        color: #991B1B;
+        border: 1px solid #FECACA;
+    }}
+
+    /* Advisory Containers - Full Border, Zero Vertical Bar */
+    .advisory-box {{
+        margin-top: 0.875rem;
+        padding: 0.75rem 1rem;
         border-radius: 6px;
-        font-weight: 700;
-        font-size: 0.85rem;
-        display: inline-block;
+        font-size: 0.8125rem;
+        line-height: 1.45;
+    }}
+    .advisory-warning {{
+        background-color: #FFFBEB;
+        border: 1px solid #FDE68A;
+        color: #92400E;
+    }}
+    .advisory-critical {{
+        background-color: #FEF2F2;
+        border: 1px solid #FECACA;
+        color: #991B1B;
+    }}
+    .advisory-title {{
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+    }}
+    .advisory-body {{
+        color: #475569;
+        font-size: 0.8125rem;
     }}
 
     /* Metric Containers */
@@ -236,31 +284,39 @@ def inject_custom_css():
         background: #FFFFFF;
         border: 1px solid {DJEZZY_BORDER};
         border-radius: 8px;
-        padding: 0.85rem 1.1rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        padding: 0.875rem 1.125rem;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
     }}
     div[data-testid="metric-container"] label {{
         color: {DJEZZY_MUTED} !important;
-        font-weight: 600 !important;
-        font-size: 0.85rem !important;
+        font-weight: 500 !important;
+        font-size: 0.75rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
     }}
     div[data-testid="metric-container"] div[data-testid="stMetricValue"] {{
         color: {DJEZZY_DARK} !important;
-        font-weight: 800 !important;
+        font-weight: 600 !important;
+        font-size: 1.375rem !important;
+        letter-spacing: -0.02em !important;
     }}
 
-    /* Tabs Styling */
+    /* Tabs Styling - Understated Minimalist */
     .stTabs [data-baseweb="tab-list"] {{
-        gap: 6px;
-        border-bottom: 2px solid #E2E6EA;
+        gap: 1.5rem;
+        border-bottom: 1px solid #E2E8F0;
     }}
     .stTabs [data-baseweb="tab"] {{
-        font-weight: 600;
-        padding: 0.6rem 1.2rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+        padding: 0.625rem 0.25rem;
         color: {DJEZZY_MUTED};
+        border-bottom: 2px solid transparent;
+        background: transparent;
     }}
     .stTabs [aria-selected="true"] {{
-        color: {DJEZZY_RED} !important;
+        color: {DJEZZY_DARK} !important;
+        font-weight: 600 !important;
         border-bottom-color: {DJEZZY_RED} !important;
     }}
     </style>
@@ -275,15 +331,15 @@ def render_sidebar(df_cleaned: pd.DataFrame, cfg: dict) -> dict:
     if logo_b64:
         st.sidebar.markdown(f"""
         <div style="display:flex; align-items:center; gap:12px; padding: 4px 0 14px 0;">
-            <img src="data:image/svg+xml;base64,{logo_b64}" style="height:44px; width:auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));" alt="Djezzy" />
+            <img src="data:image/svg+xml;base64,{logo_b64}" style="height:36px; width:auto;" alt="Djezzy" />
             <div>
-                <div style="font-weight:800; font-size:1.15rem; color:{DJEZZY_DARK}; letter-spacing:-0.4px;">Djezzy Operations</div>
-                <div style="font-size:0.75rem; color:{DJEZZY_MUTED}; font-weight:600;">RAN Capacity &amp; Planning Center</div>
+                <div style="font-weight:600; font-size:1.05rem; color:{DJEZZY_DARK}; letter-spacing:-0.02em;">Djezzy Operations</div>
+                <div style="font-size:0.75rem; color:{DJEZZY_MUTED}; font-weight:400;">RAN Capacity &amp; Planning</div>
             </div>
         </div>
         """, unsafe_allow_html=True)
     else:
-        st.sidebar.markdown(f"### 📡 **Djezzy Control Center**")
+        st.sidebar.markdown("### Djezzy Control Center")
     st.sidebar.markdown("---")
 
     # Horizon Selector
@@ -295,7 +351,7 @@ def render_sidebar(df_cleaned: pd.DataFrame, cfg: dict) -> dict:
     horizon_key = "24h" if "24" in horizon_choice else "7d"
     horizon_alias = "short" if horizon_key == "24h" else "long"
 
-    st.sidebar.markdown("#### 🎯 **Network Filters**")
+    st.sidebar.markdown("#### Network Filters")
 
     # Wilaya Selector
     all_wilayas = sorted(df_cleaned["wilaya_name"].dropna().unique().tolist()) if not df_cleaned.empty else []
@@ -336,7 +392,7 @@ def render_sidebar(df_cleaned: pd.DataFrame, cfg: dict) -> dict:
     st.sidebar.markdown("---")
     st.sidebar.markdown(
         f"""
-        <div style="font-size:0.75rem; color:{DJEZZY_MUTED};">
+        <div style="font-size:0.75rem; color:{DJEZZY_MUTED}; line-height:1.5;">
         <b>Network Baseline:</b> 78 cells · 28 sites · 25 wilayas<br>
         <b>Forecast Origin:</b> 2026-01-01 00:00 Africa/Algiers<br>
         <b>Model:</b> LightGBM + Recursive Rollout
@@ -362,7 +418,7 @@ def render_header():
     logo_b64 = get_djezzy_logo_b64()
     logo_html = ""
     if logo_b64:
-        logo_html = f'<img src="data:image/svg+xml;base64,{logo_b64}" style="height: 54px; width: auto; margin-right: 18px; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));" alt="Djezzy Logo" />'
+        logo_html = f'<img src="data:image/svg+xml;base64,{logo_b64}" style="height: 38px; width: auto; margin-right: 16px;" alt="Djezzy Logo" />'
 
     st.markdown(f"""
     <div class="djezzy-header">
@@ -370,16 +426,15 @@ def render_header():
             {logo_html}
             <div>
                 <h1 class="djezzy-title">Djezzy <span>Network Forecasting</span></h1>
-                <div class="djezzy-subtitle">AI-Driven Radio Traffic Forecasting &amp; Capacity Planning Platform</div>
+                <div class="djezzy-subtitle">Radio Access Network Traffic Forecasting &amp; Capacity Planning Platform</div>
             </div>
         </div>
         <div>
-            <span class="djezzy-badge">NOC / RAN SUITE</span>
+            <span class="djezzy-badge">NOC / RAN Suite</span>
         </div>
     </div>
     <div class="disclaimer-banner">
-        ⚠️ <strong>Synthetic Data Notice</strong>: This platform operates entirely on 100% synthetic network telemetry generated
-        for capacity planning benchmarking. Figures do not represent real Djezzy network traffic or personal subscriber data.
+        <strong>Synthetic Telemetry Notice</strong>: This platform operates entirely on synthetic network telemetry generated for capacity planning benchmarking. Values do not represent real-world network operations.
     </div>
     """, unsafe_allow_html=True)
 
@@ -522,53 +577,85 @@ def render_forecast_tab(cfg: dict, filters: dict, df_cleaned: pd.DataFrame):
         selected_cid = filters["cell"]
         df_fc_dl = df_fc_dl[df_fc_dl["cell_id"] == selected_cid]
         df_fc_prb = df_fc_prb[df_fc_prb["cell_id"] == selected_cid]
-        st.info(f"📍 Viewing Individual Forecast for Cell: **{selected_cid}** (Horizon: {h_key.upper()})")
+        st.markdown(
+            f'<div class="scope-banner">Individual Cell Scope: <strong>{selected_cid}</strong> · Horizon: <strong>{h_key.upper()}</strong></div>',
+            unsafe_allow_html=True,
+        )
     else:
-        st.info(f"🌐 Viewing Aggregate Forecast Across **{df_fc_dl['cell_id'].nunique()} Selected Cells** (Horizon: {h_key.upper()})")
+        st.markdown(
+            f'<div class="scope-banner">Aggregate Network Scope: <strong>{df_fc_dl["cell_id"].nunique()} Selected Cells</strong> · Horizon: <strong>{h_key.upper()}</strong></div>',
+            unsafe_allow_html=True,
+        )
 
     # Forecast Statistics Row
-    s1, s2, s3, s4 = st.columns(4)
+    s1, s2, s3, s4, s5 = st.columns(5)
     with s1:
         st.metric("Total Forecast Steps", f"{df_fc_dl['timestamp'].nunique()} hours")
     with s2:
         st.metric("Avg Projected DL", f"{df_fc_dl['predicted'].mean():.2f} GB/h")
     with s3:
-        st.metric("Avg Projected PRB", f"{df_fc_prb['predicted'].mean():.1f}%")
+        if "lower_75" in df_fc_dl.columns and "upper_75" in df_fc_dl.columns:
+            dl_width = (df_fc_dl["upper_75"] - df_fc_dl["lower_75"]).mean()
+            st.metric("Avg 75% DL Margin", f"±{dl_width / 2.0:.2f} GB/h")
+        else:
+            st.metric("Avg Projected PRB", f"{df_fc_prb['predicted'].mean():.1f}%")
     with s4:
+        st.metric("Avg Projected PRB", f"{df_fc_prb['predicted'].mean():.1f}%")
+    with s5:
         peak_prb = df_fc_prb["predicted"].max()
-        st.metric("Peak Projected PRB", f"{peak_prb:.1f}%")
+        peak_upper = df_fc_prb["upper_75"].max() if "upper_75" in df_fc_prb.columns else peak_prb
+        st.metric("Peak PRB [75% Max]", f"{peak_prb:.1f}% [{peak_upper:.1f}%]")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
     # 1. Downlink Traffic Forecast Chart
-    st.markdown("#### 1. Downlink Traffic Volume Forecast (GB/h)")
+    st.markdown('<div class="subsection-title">1. Downlink Traffic Volume Forecast (GB/h) with 75% Prediction Interval</div>', unsafe_allow_html=True)
     fig_dl = go.Figure()
 
     if is_single_cell:
-        # Show actual cell line
+        # Shaded 75% prediction interval
+        if "lower_75" in df_fc_dl.columns and "upper_75" in df_fc_dl.columns:
+            fig_dl.add_trace(go.Scatter(
+                x=pd.concat([df_fc_dl["timestamp"], df_fc_dl["timestamp"][::-1]]),
+                y=pd.concat([df_fc_dl["upper_75"], df_fc_dl["lower_75"][::-1]]),
+                fill="toself",
+                fillcolor="rgba(224, 43, 32, 0.16)",
+                line=dict(color="rgba(255,255,255,0)"),
+                name="75% Prediction Interval",
+                hoverinfo="skip",
+            ))
+        # Point forecast line
         fig_dl.add_trace(go.Scatter(
             x=df_fc_dl["timestamp"],
             y=df_fc_dl["predicted"],
             mode="lines+markers",
-            name=f"Forecast: {selected_cid}",
+            name=f"Point Forecast: {selected_cid}",
             line=dict(color=DJEZZY_RED, width=3),
         ))
     else:
         # Aggregate across cells
-        agg_dl = df_fc_dl.groupby("timestamp")["predicted"].agg(["mean", "min", "max"]).reset_index()
+        agg_dl = df_fc_dl.groupby("timestamp").agg({
+            "predicted": ["mean", "min", "max"],
+            "lower_75": "mean",
+            "upper_75": "mean",
+        })
+        agg_dl.columns = ["mean", "min", "max", "lower_mean", "upper_mean"]
+        agg_dl = agg_dl.reset_index()
+
         fig_dl.add_trace(go.Scatter(
             x=pd.concat([agg_dl["timestamp"], agg_dl["timestamp"][::-1]]),
-            y=pd.concat([agg_dl["max"], agg_dl["min"][::-1]]),
+            y=pd.concat([agg_dl["upper_mean"], agg_dl["lower_mean"][::-1]]),
             fill="toself",
-            fillcolor="rgba(224, 43, 32, 0.12)",
+            fillcolor="rgba(224, 43, 32, 0.14)",
             line=dict(color="rgba(255,255,255,0)"),
-            name="Cell Range (Min–Max)",
+            name="Mean 75% Prediction Interval",
+            hoverinfo="skip",
         ))
         fig_dl.add_trace(go.Scatter(
             x=agg_dl["timestamp"],
             y=agg_dl["mean"],
             mode="lines",
-            name="Network Mean DL",
+            name="Network Mean DL Forecast",
             line=dict(color=DJEZZY_RED, width=2.5),
         ))
 
@@ -583,38 +670,57 @@ def render_forecast_tab(cfg: dict, filters: dict, df_cleaned: pd.DataFrame):
     st.plotly_chart(fig_dl, use_container_width=True)
 
     # 2. PRB Utilisation Forecast Chart with Thresholds
-    st.markdown("#### 2. Physical Resource Block (PRB) Utilisation & Congestion Thresholds")
+    st.markdown('<div class="subsection-title">2. Physical Resource Block (PRB) Utilisation & Congestion Thresholds</div>', unsafe_allow_html=True)
     fig_prb = go.Figure()
 
     if is_single_cell:
+        # Shaded 75% prediction interval
+        if "lower_75" in df_fc_prb.columns and "upper_75" in df_fc_prb.columns:
+            fig_prb.add_trace(go.Scatter(
+                x=pd.concat([df_fc_prb["timestamp"], df_fc_prb["timestamp"][::-1]]),
+                y=pd.concat([df_fc_prb["upper_75"], df_fc_prb["lower_75"][::-1]]),
+                fill="toself",
+                fillcolor="rgba(15, 23, 42, 0.14)",
+                line=dict(color="rgba(255,255,255,0)"),
+                name="75% Prediction Interval",
+                hoverinfo="skip",
+            ))
         fig_prb.add_trace(go.Scatter(
             x=df_fc_prb["timestamp"],
             y=df_fc_prb["predicted"],
             mode="lines+markers",
-            name=f"Forecast PRB: {selected_cid}",
+            name=f"Point Forecast PRB: {selected_cid}",
             line=dict(color=DJEZZY_DARK, width=3),
         ))
     else:
-        agg_prb = df_fc_prb.groupby("timestamp")["predicted"].agg(["mean", "min", "max"]).reset_index()
+        agg_prb = df_fc_prb.groupby("timestamp").agg({
+            "predicted": ["mean", "min", "max"],
+            "lower_75": "mean",
+            "upper_75": "mean",
+        })
+        agg_prb.columns = ["mean", "min", "max", "lower_mean", "upper_mean"]
+        agg_prb = agg_prb.reset_index()
+
         fig_prb.add_trace(go.Scatter(
             x=pd.concat([agg_prb["timestamp"], agg_prb["timestamp"][::-1]]),
-            y=pd.concat([agg_prb["max"], agg_prb["min"][::-1]]),
+            y=pd.concat([agg_prb["upper_mean"], agg_prb["lower_mean"][::-1]]),
             fill="toself",
-            fillcolor="rgba(20, 23, 26, 0.12)",
+            fillcolor="rgba(15, 23, 42, 0.12)",
             line=dict(color="rgba(255,255,255,0)"),
-            name="Cell Range (Min–Max)",
+            name="Mean 75% Prediction Interval",
+            hoverinfo="skip",
         ))
         fig_prb.add_trace(go.Scatter(
             x=agg_prb["timestamp"],
             y=agg_prb["mean"],
             mode="lines",
-            name="Network Mean PRB",
+            name="Network Mean PRB Forecast",
             line=dict(color=DJEZZY_DARK, width=2.5),
         ))
 
     # Add Official Congestion Threshold Lines
-    fig_prb.add_hline(y=80, line_dash="dash", line_color=WARNING_AMBER, annotation_text="WARNING (≥80%)")
-    fig_prb.add_hline(y=90, line_dash="dash", line_color=CRITICAL_RED, annotation_text="HIGH CONGESTION (≥90%)")
+    fig_prb.add_hline(y=80, line_dash="dash", line_color=WARNING_AMBER, annotation_text="Warning (80%)")
+    fig_prb.add_hline(y=90, line_dash="dash", line_color=CRITICAL_RED, annotation_text="Critical (90%)")
 
     fig_prb.update_layout(
         xaxis_title="Forecast Timestamp (Africa/Algiers)",
@@ -657,10 +763,10 @@ def render_alerts_tab(cfg: dict, filters: dict):
         df_alerts = df_alerts[df_alerts["cell_id"] == filters["cell"]]
 
     # Severity Level filter
-    sev_filter = st.radio("Filter Severity Level", options=["All Alerts", "HIGH (≥90%)", "WARNING (≥80%)"], horizontal=True)
-    if "HIGH" in sev_filter:
+    sev_filter = st.radio("Filter Severity Level", options=["All Alerts", "Critical (≥90%)", "Warning (≥80%)"], horizontal=True)
+    if "Critical" in sev_filter:
         df_alerts = df_alerts[df_alerts["alert_level"] == "HIGH"]
-    elif "WARNING" in sev_filter:
+    elif "Warning" in sev_filter:
         df_alerts = df_alerts[df_alerts["alert_level"] == "WARNING"]
 
     # Alerts Summary Metrics
@@ -669,10 +775,10 @@ def render_alerts_tab(cfg: dict, filters: dict):
         st.metric("Total Alerts", f"{len(df_alerts):,}")
     with a2:
         high_cnt = int((df_alerts["alert_level"] == "HIGH").sum())
-        st.metric("🔴 HIGH Alerts (PRB ≥ 90%)", f"{high_cnt:,}")
+        st.metric("Critical Alerts (PRB ≥ 90%)", f"{high_cnt:,}")
     with a3:
         warn_cnt = int((df_alerts["alert_level"] == "WARNING").sum())
-        st.metric("🟠 WARNING Alerts (PRB ≥ 80%)", f"{warn_cnt:,}")
+        st.metric("Warning Alerts (PRB ≥ 80%)", f"{warn_cnt:,}")
     with a4:
         affected_cells = df_alerts["cell_id"].nunique()
         st.metric("Affected Unique Cells", f"{affected_cells:,}")
@@ -750,15 +856,15 @@ def render_deep_dive_tab(df_cleaned: pd.DataFrame, cfg: dict, filters: dict):
     c_w, c_s, c_c = st.columns(3)
     with c_w:
         w_list = sorted(df_cleaned["wilaya_name"].dropna().unique().tolist())
-        chosen_w = st.selectbox("1. Select Wilaya", options=w_list, index=0)
+        chosen_w = st.selectbox("Wilaya", options=w_list, index=0)
 
     with c_s:
         sub_sites = sorted(df_cleaned[df_cleaned["wilaya_name"] == chosen_w]["site_id"].dropna().unique().tolist())
-        chosen_s = st.selectbox("2. Select Site", options=sub_sites, index=0)
+        chosen_s = st.selectbox("Site", options=sub_sites, index=0)
 
     with c_c:
         sub_cells = sorted(df_cleaned[df_cleaned["site_id"] == chosen_s]["cell_id"].dropna().unique().tolist())
-        target_cell = st.selectbox("3. Select Radio Cell", options=sub_cells, index=0)
+        target_cell = st.selectbox("Radio Cell", options=sub_cells, index=0)
 
     # Extract Cell Historical Data
     cell_hist = df_cleaned[df_cleaned["cell_id"] == target_cell].sort_values("timestamp")
@@ -790,15 +896,32 @@ def render_deep_dive_tab(df_cleaned: pd.DataFrame, cfg: dict, filters: dict):
         fc_prb_cell = all_fc_prb[all_fc_prb["cell_id"] == target_cell].sort_values("timestamp")
 
     peak_prb = fc_prb_cell["predicted"].max() if not fc_prb_cell.empty else 0.0
+    peak_upper_prb = fc_prb_cell["upper_75"].max() if ("upper_75" in fc_prb_cell.columns and not fc_prb_cell.empty) else peak_prb
     peak_dl = fc_dl_cell["predicted"].max() if not fc_dl_cell.empty else 0.0
+    peak_upper_dl = fc_dl_cell["upper_75"].max() if ("upper_75" in fc_dl_cell.columns and not fc_dl_cell.empty) else peak_dl
 
-    # Determine Health Status
+    # Determine Health Status (Official Point Forecast)
     if peak_prb >= 90.0:
-        status_html = '<span class="badge-high">🔴 HIGH CONGESTION</span>'
+        status_html = '<span class="status-badge badge-high">Critical Congestion</span>'
     elif peak_prb >= 80.0:
-        status_html = '<span class="badge-warning">🟠 WARNING</span>'
+        status_html = '<span class="status-badge badge-warning">Warning Threshold</span>'
     else:
-        status_html = '<span class="badge-normal">🟢 NORMAL</span>'
+        status_html = '<span class="status-badge badge-normal">Nominal Operation</span>'
+
+    # Probabilistic Uncertainty Advisory (Decision-Support)
+    advisory_html = ""
+    if peak_prb < 80.0 and peak_upper_prb >= 80.0:
+        advisory_html = f"""
+        <div class="advisory-box advisory-warning">
+            <strong>Uncertainty Advisory</strong>: Point forecast peak is <strong>{peak_prb:.1f}%</strong> (below warning threshold), but the 75% prediction interval upper bound reaches <strong>{peak_upper_prb:.1f}%</strong>. Preemptive capacity monitoring recommended.
+        </div>
+        """
+    elif peak_prb >= 80.0 and peak_prb < 90.0 and peak_upper_prb >= 90.0:
+        advisory_html = f"""
+        <div class="advisory-box advisory-critical">
+            <strong>Congestion Risk Advisory</strong>: Point forecast is at warning level (<strong>{peak_prb:.1f}%</strong>), with 75% prediction interval upper bound reaching <strong>{peak_upper_prb:.1f}%</strong> (critical threshold).
+        </div>
+        """
 
     # Cell Metadata & Health Card
     st.markdown(f"""
@@ -817,24 +940,27 @@ def render_deep_dive_tab(df_cleaned: pd.DataFrame, cfg: dict, filters: dict):
                 {status_html}
             </div>
         </div>
+        {advisory_html}
     </div>
     """, unsafe_allow_html=True)
 
     # Diagnostic Metrics
-    d1, d2, d3, d4 = st.columns(4)
+    d1, d2, d3, d4, d5 = st.columns(5)
     with d1:
         st.metric("Historical Avg DL", f"{cell_hist['dl_traffic_volume_gb'].mean():.2f} GB/h")
     with d2:
         st.metric("Forecast Peak DL", f"{peak_dl:.2f} GB/h")
     with d3:
-        st.metric("Historical Avg PRB", f"{cell_hist['prb_utilization_pct'].mean():.1f}%")
+        st.metric("Peak 75% DL Interval", f"≤ {peak_upper_dl:.2f} GB/h")
     with d4:
-        st.metric("Forecast Peak PRB", f"{peak_prb:.1f}%")
+        st.metric("Historical Avg PRB", f"{cell_hist['prb_utilization_pct'].mean():.1f}%")
+    with d5:
+        st.metric("Peak PRB [75% Max]", f"{peak_prb:.1f}% [{peak_upper_prb:.1f}%]")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Chart 1: Historical + Forecast DL
-    st.markdown("**Downlink Traffic: Recent History vs Forward Forecast**")
+    # Chart 1: Historical + Forecast DL with 75% Interval
+    st.markdown("**Downlink Traffic: Recent History vs Forward Forecast (with 75% Prediction Interval)**")
     recent_hist = cell_hist.tail(168)  # Last week of 2025
     fig_d1 = go.Figure()
     fig_d1.add_trace(go.Scatter(
@@ -845,18 +971,28 @@ def render_deep_dive_tab(df_cleaned: pd.DataFrame, cfg: dict, filters: dict):
         line=dict(color=DJEZZY_DARK, width=2),
     ))
     if not fc_dl_cell.empty:
+        if "lower_75" in fc_dl_cell.columns and "upper_75" in fc_dl_cell.columns:
+            fig_d1.add_trace(go.Scatter(
+                x=pd.concat([fc_dl_cell["timestamp"], fc_dl_cell["timestamp"][::-1]]),
+                y=pd.concat([fc_dl_cell["upper_75"], fc_dl_cell["lower_75"][::-1]]),
+                fill="toself",
+                fillcolor="rgba(224, 43, 32, 0.16)",
+                line=dict(color="rgba(255,255,255,0)"),
+                name="75% Prediction Interval",
+                hoverinfo="skip",
+            ))
         fig_d1.add_trace(go.Scatter(
             x=fc_dl_cell["timestamp"],
             y=fc_dl_cell["predicted"],
             mode="lines+markers",
-            name="Model Forecast",
+            name="Point Forecast DL",
             line=dict(color=DJEZZY_RED, width=2.5),
         ))
     fig_d1.update_layout(height=340, margin=dict(l=0, r=0, t=10, b=0), template="plotly_white", yaxis_title="DL Traffic (GB/h)")
     st.plotly_chart(fig_d1, use_container_width=True)
 
-    # Chart 2: Historical + Forecast PRB with Congestion Lines
-    st.markdown("**PRB Utilisation: Recent History vs Forward Forecast (with Congestion Limits)**")
+    # Chart 2: Historical + Forecast PRB with 75% Interval and Congestion Lines
+    st.markdown("**PRB Utilisation: Recent History vs Forward Forecast (with 75% Prediction Interval & Congestion Limits)**")
     fig_d2 = go.Figure()
     fig_d2.add_trace(go.Scatter(
         x=recent_hist["timestamp"],
@@ -866,15 +1002,25 @@ def render_deep_dive_tab(df_cleaned: pd.DataFrame, cfg: dict, filters: dict):
         line=dict(color=DJEZZY_DARK, width=2),
     ))
     if not fc_prb_cell.empty:
+        if "lower_75" in fc_prb_cell.columns and "upper_75" in fc_prb_cell.columns:
+            fig_d2.add_trace(go.Scatter(
+                x=pd.concat([fc_prb_cell["timestamp"], fc_prb_cell["timestamp"][::-1]]),
+                y=pd.concat([fc_prb_cell["upper_75"], fc_prb_cell["lower_75"][::-1]]),
+                fill="toself",
+                fillcolor="rgba(20, 23, 26, 0.16)",
+                line=dict(color="rgba(255,255,255,0)"),
+                name="75% Prediction Interval",
+                hoverinfo="skip",
+            ))
         fig_d2.add_trace(go.Scatter(
             x=fc_prb_cell["timestamp"],
             y=fc_prb_cell["predicted"],
             mode="lines+markers",
-            name="Forecast PRB",
+            name="Point Forecast PRB",
             line=dict(color=DJEZZY_RED, width=2.5),
         ))
-    fig_d2.add_hline(y=80, line_dash="dash", line_color=WARNING_AMBER, annotation_text="WARNING (80%)")
-    fig_d2.add_hline(y=90, line_dash="dash", line_color=CRITICAL_RED, annotation_text="HIGH (90%)")
+    fig_d2.add_hline(y=80, line_dash="dash", line_color=WARNING_AMBER, annotation_text="Warning (80%)")
+    fig_d2.add_hline(y=90, line_dash="dash", line_color=CRITICAL_RED, annotation_text="Critical (90%)")
     fig_d2.update_layout(height=340, margin=dict(l=0, r=0, t=10, b=0), template="plotly_white", yaxis_title="PRB (%)", yaxis_range=[0, 105])
     st.plotly_chart(fig_d2, use_container_width=True)
 
@@ -980,6 +1126,24 @@ def render_performance_tab(cfg: dict):
             fig_f2.update_layout(height=320, margin=dict(l=0, r=0, t=10, b=0), template="plotly_white")
             st.plotly_chart(fig_f2, use_container_width=True)
 
+    # 75% Prediction Interval Holdout Validation Section
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("#### 3. 75% Prediction Interval Validation on Untouched Holdout (Nov–Dec 2025)")
+    interval_csv = metrics_dir / "interval_evaluation_summary.csv"
+    if interval_csv.exists():
+        df_interval = pd.read_csv(interval_csv)
+        st.dataframe(
+            df_interval.style.format({
+                "nominal_coverage_pct": "{:.1f}%",
+                "empirical_coverage_pct": "{:.2f}%",
+                "mean_interval_width": "{:.4f}",
+                "mean_winkler_score": "{:.4f}",
+            }),
+            use_container_width=True,
+            hide_index=True,
+        )
+        st.caption("Intervals calibrated via walk-forward validation residuals prior to November 2025. Evaluated on untouched holdout origins (2025-11-03 and 2025-12-01).")
+
 
 # ---------------------------------------------------------------------------
 # TAB 6: Data Quality Audit
@@ -1048,12 +1212,12 @@ def main():
 
     # Render Navigation Tabs
     tabs = st.tabs([
-        "🌐 Network Overview",
-        "📈 Forecast Analysis",
-        "⚠️ Congestion Alerts",
-        "🔍 Cell Deep-Dive",
-        "🎯 Model Performance",
-        "🛡️ Data Quality",
+        "Network Overview",
+        "Forecast Analysis",
+        "Congestion Alerts",
+        "Cell Deep-Dive",
+        "Model Performance",
+        "Data Quality",
     ])
 
     with tabs[0]:

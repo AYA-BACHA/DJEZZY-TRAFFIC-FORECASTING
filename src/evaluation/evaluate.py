@@ -77,6 +77,7 @@ def generate_markdown_report(
     forecast_summary: dict,
     alert_summary: dict,
     cfg: dict,
+    interval_summary_df: pd.DataFrame = None,
 ) -> str:
     """Generate comprehensive Markdown evaluation report."""
     lines = [
@@ -127,30 +128,50 @@ def generate_markdown_report(
     else:
         lines.append("_Metrics summary not available._\n")
 
+    if interval_summary_df is not None and not interval_summary_df.empty:
+        lines += [
+            "---",
+            "",
+            "## 3. 75% Prediction Interval Validation on Untouched Holdout (Nov–Dec 2025)",
+            "",
+            "Uncertainty intervals calibrated using strictly pre-holdout walk-forward validation residuals (zero lookahead).",
+            "Evaluated on untouched holdout origins (`2025-11-03` and `2025-12-01`):",
+            "",
+            "| Target | Horizon | Nominal Coverage | Empirical Coverage | Mean Interval Width | Mean Winkler Score |",
+            "|--------|---------|------------------|--------------------|---------------------|--------------------|",
+        ]
+        for _, row in interval_summary_df.iterrows():
+            lines.append(
+                f"| `{row['target']}` | **{row['horizon']}** | {row['nominal_coverage_pct']:.1f}% | "
+                f"**{row['empirical_coverage_pct']:.2f}%** | {row['mean_interval_width']:.4f} | {row['mean_winkler_score']:.4f} |"
+            )
+        lines.append("")
+
     lines += [
         "---",
         "",
-        "## 3. Official Forecast Summary (Origin: 2026-01-01 00:00:00)",
+        "## 4. Official Forecast Summary (Origin: 2026-01-01 00:00:00)",
         "",
-        "| Target | Horizon | Timestamps | Total Predictions | Mean Predicted | Max Predicted | Min Predicted |",
-        "|--------|---------|------------|-------------------|----------------|---------------|---------------|",
+        "| Target | Horizon | Timestamps | Total Predictions | Mean Predicted | Mean 75% Width | Max Predicted | Min Predicted |",
+        "|--------|---------|------------|-------------------|----------------|----------------|---------------|---------------|",
     ]
 
     for target, horizons in forecast_summary.items():
         for h_name, info in horizons.items():
             start_str = info.get("forecast_start", "")[:19]
             end_str = info.get("forecast_end", "")[:19]
+            width_val = info.get("mean_interval_width_75", 0.0)
             lines.append(
                 f"| `{target}` | **{h_name}** | {start_str} to {end_str} | "
                 f"{info.get('n_rows', 0):,} | {info.get('mean_predicted', 0):.2f} | "
-                f"{info.get('max_predicted', 0):.2f} | {info.get('min_predicted', 0):.2f} |"
+                f"**{width_val:.2f}** | {info.get('max_predicted', 0):.2f} | {info.get('min_predicted', 0):.2f} |"
             )
     lines.append("")
 
     lines += [
         "---",
         "",
-        "## 4. Congestion Alerts Summary",
+        "## 5. Congestion Alerts Summary",
         "",
         "Congestion thresholds: **WARNING** (PRB ≥ 80%), **HIGH** (PRB ≥ 90%).",
         "",
@@ -278,8 +299,18 @@ def run_evaluation_pipeline(config_path: str = "config/config.yaml") -> None:
         else:
             alert_summary[h_name] = {"total_alerts": 0}
 
-    # 4. Generate markdown evaluation report
-    report_md = generate_markdown_report(metrics_df, forecast_summary, alert_summary, cfg)
+    # 4. Load 75% interval evaluation summary if present
+    interval_summary_path = metrics_dir / "interval_evaluation_summary.csv"
+    if interval_summary_path.exists():
+        log.info("Loading interval evaluation summary from %s", interval_summary_path)
+        interval_df = pd.read_csv(interval_summary_path)
+    else:
+        interval_df = None
+
+    # 5. Generate markdown evaluation report
+    report_md = generate_markdown_report(
+        metrics_df, forecast_summary, alert_summary, cfg, interval_summary_df=interval_df
+    )
     report_file = reports_dir / "evaluation_report.md"
     with open(report_file, "w", encoding="utf-8") as f:
         f.write(report_md)

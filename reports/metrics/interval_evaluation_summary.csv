@@ -1,0 +1,5 @@
+target,horizon,nominal_coverage_pct,empirical_coverage_pct,mean_interval_width,mean_winkler_score
+dl_traffic_volume_gb,24h,75.0,76.98,2.4785,7.077
+dl_traffic_volume_gb,7d,75.0,73.26,8.7998,54.5729
+prb_utilization_pct,24h,75.0,75.79,10.4162,16.7821
+prb_utilization_pct,7d,75.0,76.75,11.3562,18.1942

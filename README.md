@@ -2,7 +2,7 @@
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Test Suite](https://img.shields.io/badge/pytest-38%20passed-brightgreen.svg)](tests/)
+[![Test Suite](https://img.shields.io/badge/pytest-49%20passed-brightgreen.svg)](tests/)
 [![Framework](https://img.shields.io/badge/Streamlit-1.40%2B-red.svg)](https://streamlit.io/)
 
 > **IMPORTANT DISCLAIMER**: This project operates on **100% synthetic network telemetry data** generated for benchmarking and training purposes. The figures, cell identifiers, and values do not represent real-world internal Djezzy network operations.
@@ -21,7 +21,8 @@ In mobile telecommunications networks, data traffic exhibits sharp diurnal, week
 - **Dual Forecasting Horizons**:
   - **Short-Term (24h Ahead)**: Operational dispatch, dynamic carrier configuration, real-time load balancing.
   - **Medium-Term (7d Ahead)**: Weekly capacity planning, maintenance scheduling, event provisioning.
-- **Congestion Alerting**: Automatically detect imminent cell-level saturation ($\text{PRB} \ge 80\%$ WARNING, $\text{PRB} \ge 90\%$ HIGH) across both horizons.
+- **75% Prediction Intervals**: Produce statistically calibrated lower and upper uncertainty bounds (`lower_75`, `upper_75`) surrounding each point prediction (`predicted`) across all 78 cells and horizons.
+- **Congestion Alerting**: Automatically detect imminent cell-level saturation ($\text{PRB} \ge 80\%$ WARNING, $\text{PRB} \ge 90\%$ HIGH) and provide probabilistic advisory notifications when the uncertainty band crosses thresholds.
 - **Interactive Decision-Support UI**: Provide network operations engineers with an enterprise-grade Streamlit application styled in Djezzy's brand visual identity (red, white, charcoal).
 
 ---
@@ -37,12 +38,13 @@ flowchart TD
     E --> F["Chronological Train/Holdout Split\nTrain: 2024-01 to 2025-10 | Holdout: 2025-11 to 2025-12"]
     F --> G["Model Training & Tuning\n(src/models/train.py)"]
     G --> H["Model Registry\n(models/*.pkl)"]
-    H --> I["Recursive Autoregressive Backtest\nZero Lookahead Leakage\n(src/evaluation/backtest.py)"]
-    H --> J["Official Forecast Engine\nOrigin: 2026-01-01 00:00:00\n(src/models/predict.py)"]
-    I --> K["Benchmark Metrics\n(reports/metrics/metrics_summary.csv)"]
-    J --> L["Official 24h & 7d Forecasts\n(reports/forecasts/)"]
-    L --> M["Congestion Alert Engine\n(reports/metrics/congestion_alerts_*.csv)"]
-    L & M & K --> N["Streamlit Operations Platform\n(dashboard/app.py)"]
+    H --> I["Pre-Holdout Residual Calibration\n(src/models/uncertainty.py)"]
+    I --> J["Calibration Offsets\n(models/calibration_intervals.json)"]
+    H & J --> K["Official Forecast & Interval Engine\nOrigin: 2026-01-01 00:00:00\n(src/models/predict.py)"]
+    H & J --> L["Untouched Holdout Backtest & Evaluation\n(src/evaluation/backtest.py & evaluate.py)"]
+    K --> M["Official Forecasts with 75% Bounds\n(reports/forecasts/)"]
+    L --> N["Benchmark Metrics & Interval Validation\n(reports/metrics/)"]
+    M & N --> O["Streamlit Operations Platform\n(dashboard/app.py)"]
 ```
 
 ---
@@ -52,16 +54,18 @@ flowchart TD
 The raw dataset spans two full calendar years (2024–2025) of hourly observations across 78 individual radio cells distributed over 28 physical sites and 25 Algerian Wilayas.
 
 ### Data Cleaning Protocol (`src/data/clean.py`)
-1. **Deduplication**: Resolves duplicate `(cell_id, timestamp)` observations using the latest valid record.
+1. **Deduplication**: Resolves 12,254 duplicate `(cell_id, timestamp)` observations using the earliest valid record.
 2. **Categorical Normalisation**:
    - Standardises radio technology labels: `LTE`, `4g`, `4G`, `LTE-A` $\rightarrow$ `4G`; `3G`, `UMTS` $\rightarrow$ `3G`; `2G`, `GSM` $\rightarrow$ `2G`; `5G`, `NR` $\rightarrow$ `5G`.
-   - Normalises Wilaya names (e.g. `ALGER` $\rightarrow$ `Alger`, `ORAN` $\rightarrow$ `Oran`) and trims whitespace.
+   - Normalises Wilaya names (e.g. `ALGER` $\rightarrow$ `Alger`, `ORAN` $\rightarrow$ `Oran`) and trims whitespace across 25 official Algerian Wilayas.
 3. **Range & Sanity Corrections**:
-   - Negative downlink traffic (`dl_traffic_volume_gb < 0`) is clamped or treated as sensor anomalies.
-   - PRB utilisation and network availability percentages exceeding 100% are capped at 100.0%.
+   - Negative downlink traffic (`dl_traffic_volume_gb < 0`, 2,469 entries) is replaced with NaN and imputed causally.
+   - PRB utilisation exceeding 100% (4,926 entries) and cell availability exceeding 100% (1,846 entries) are capped at physical limits of 100.0%.
    - Active users exceeding RRC connected users are bounded ($U_{\text{active}} \le U_{\text{rrc}}$).
-   - Re-derives the ground-truth `is_congested` binary flag based on `prb_utilization_pct >= 80.0`.
-4. **Missing Value Imputation**: Forward-fill and backward-fill within each individual cell series to preserve local stationarity without cross-cell pollution.
+   - Re-derives the ground-truth `congestion_flag` binary flag based on `prb_utilization_pct >= 80.0`.
+4. **Causal Missing Value Imputation (Zero Lookahead)**:
+   - Uses strictly forward fill (`ffill()`) within each individual cell series to propagate past observed states without peeking into the future.
+   - **No Backward-Fill (`bfill`)**: Backward-filling future data into past missing values is strictly avoided to prevent temporal contamination. Leading missing values prior to a cell's first record are imputed using the pre-holdout historical training median.
 5. **Output**: `data/processed/djezzy_cleaned.parquet` (1,225,932 clean rows).
 
 ---
@@ -158,7 +162,46 @@ All metrics are computed on the untouched holdout window using strict recursive 
 
 ---
 
-## 8. Official Forecasts & Congestion Alerting
+## 8. 75% Prediction Intervals & Uncertainty Quantification
+
+### Methodological Concept: Prediction Interval vs. Confidence Interval
+In operational network forecasting, NOC engineers require both a best conditional point forecast $\widehat{y}_t$ and a statistically defensible measure of future observation dispersion:
+- **Point Forecast ($\widehat{y}_t$)**: The model's single best conditional estimate.
+- **75% Prediction Interval ($[L_{0.75}, U_{0.75}]$)**: An interval constructed to contain the **actual future realization** $y_t$ approximately 75% of the time under calibration assumptions.
+- **Prediction Interval vs. Confidence Interval**: A *confidence interval* quantifies sampling uncertainty around an unobservable population parameter (e.g. regression coefficient $\beta$). A *prediction interval* must account for both model parameter uncertainty **and** the intrinsic variance of individual future observations ($\sigma^2_{\epsilon}$). Prediction intervals are therefore wider and designed for future data points rather than parameter estimates.
+
+### Calibration Strategy (Conformal Walk-Forward Residuals)
+To guarantee strict statistical defensibility and zero temporal lookahead:
+1. **Holdout Isolation**: The final evaluation period (**November 1 – December 31, 2025**) was completely isolated and never used for calibration.
+2. **Pre-Holdout Calibration Origins**: Calibration residuals $e(h) = |y(h) - \widehat{y}(h)|$ were collected by running recursive walk-forward backtests across 4 historical pre-holdout dates: `2025-07-01`, `2025-08-01`, `2025-09-01`, and `2025-10-01`.
+3. **Horizon-Aware Step Calibration**: Because uncertainty accumulates over recursive multi-step forecasting, calibration is step-dependent:
+   $$q_{75}(h) = \text{Quantile}_{0.75}\left(\{|y_{i}(h) - \widehat{y}_{i}(h)| : i \in \text{cells}, \text{origins}\}\right) \quad \text{for } h = 1, \dots, H$$
+   - DL 24h uncertainty margin: $\pm 1.25$ GB/h (mean width $2.50$ GB/h)
+   - DL 7d uncertainty margin: widens progressively to $\pm 4.53$ GB/h (mean width $9.06$ GB/h)
+   - PRB 24h uncertainty margin: $\pm 5.20\%$ (mean width $10.41\%$)
+   - PRB 7d uncertainty margin: $\pm 5.67\%$ (mean width $11.34\%$)
+4. **Physical Boundary Enforcement**:
+   - Downlink traffic: $\text{lower\_75} = \max(0.0, \widehat{y} - q_{75}(h))$, $\text{upper\_75} = \max(0.0, \widehat{y} + q_{75}(h))$
+   - PRB utilisation: $\text{lower\_75} = \text{clip}(\widehat{y} - q_{75}(h), 0.0, 100.0)$, $\text{upper\_75} = \text{clip}(\widehat{y} + q_{75}(h), 0.0, 100.0)$
+   - Ordering guaranteed: $\text{lower\_75} \le \text{predicted} \le \text{upper\_75}$.
+
+### Holdout Empirical Validation (Nov–Dec 2025)
+Evaluated across untouched holdout origins (`2025-11-03` and `2025-12-01`):
+
+| Target | Horizon | Nominal Coverage | Empirical Holdout Coverage | Mean Interval Width | Mean Winkler Score |
+|---|---|---|---|---|---|
+| `dl_traffic_volume_gb` | **24h** | 75.0% | **76.98%** | 2.4785 GB/h | 7.0770 |
+| `dl_traffic_volume_gb` | **7d** | 75.0% | **73.26%** | 8.7998 GB/h | 54.5729 |
+| `prb_utilization_pct` | **24h** | 75.0% | **75.79%** | 10.4162 % | 16.7821 |
+| `prb_utilization_pct` | **7d** | 75.0% | **76.75%** | 11.3562 % | 18.1942 |
+
+### Known Methodological Limitations
+- **Homoscedasticity across cells**: Offsets are calibrated by target and horizon step across the network. Cells with extraordinarily high traffic volume will have tighter relative intervals, while quiet rural cells will have wider relative intervals.
+- **Non-guaranteed coverage in extreme shocks**: A 75% prediction interval is an empirical expectation under baseline operational conditions, not an absolute guarantee during major physical outages.
+
+---
+
+## 9. Official Forecasts & Congestion Alerting
 
 Forecast Origin: **`2026-01-01 00:00:00` (Africa/Algiers)** across all **78 active cells**.
 
@@ -276,9 +319,16 @@ Run all unit and integration tests:
 ```bash
 pytest -v
 ```
-**Test Coverage Includes**:
-- `tests/test_clean.py`: Deduplication, technology normalisation, Wilaya casing, KPI boundary capping, and binary flag consistency.
+**Test Coverage Includes (49 Passed Tests)**:
+- `tests/test_clean.py`: Deduplication, technology normalisation, Wilaya casing, KPI boundary capping, binary flag consistency, and **causal imputation (no bfill leakage)**.
 - `tests/test_features.py`: Temporal transforms, cyclical coordinates, Algerian weekend indicators, and Ramadan month markers.
+- `tests/test_intervals.py`:
+  - Physical ordering: `lower_75 <= predicted <= upper_75`.
+  - Physical bounds: non-negative DL traffic, PRB $\in [0, 100]$.
+  - Zero NaN values in official forecasts.
+  - Invariant row counts (1,872 for 24h, 13,104 for 7d).
+  - Pre-holdout calibration isolation (zero holdout contamination).
+  - Mathematical correctness of empirical coverage and Winkler scores.
 - `tests/test_leakage_and_forecast.py`:
   - Mathematical correctness of MAE, RMSE, MAPE, sMAPE, and WAPE with zero-division guards.
   - Baselines: Naive, Seasonal Naive (yesterday/last week), and 24h Moving Average.
@@ -287,7 +337,7 @@ pytest -v
   - Alert threshold logic ($\ge 80\%$ and $\ge 90\%$).
 
 ```text
-============================== 38 passed in 1.34s ==============================
+============================== 49 passed in 6.39s ==============================
 ```
 
 ---
@@ -301,7 +351,9 @@ djezzy-traffic-forecasting/
 ├── data/
 │   ├── raw/                            # Raw telemetry (excluded from git)
 │   └── processed/                      # Cleaned parquet & feature matrix (excluded from git)
-├── models/                             # Trained model binaries (LightGBM, RF, XGB, Ridge)
+├── models/
+│   ├── calibration_intervals.json      # Pre-holdout calibrated uncertainty intervals
+│   └── *.pkl                           # Trained model binaries (LightGBM, RF, XGB, Ridge)
 ├── notebooks/
 │   ├── 01_data_quality_audit.ipynb     # Data profiling and cleaning experiments
 │   ├── 02_eda.ipynb                    # Exploratory data analysis & seasonality
@@ -309,16 +361,17 @@ djezzy-traffic-forecasting/
 ├── reports/
 │   ├── evaluation_report.md            # Comprehensive holdout evaluation report
 │   ├── figures/                        # Interactive Plotly HTML visualizations
-│   ├── forecasts/                      # Official 24h & 7d forecast parquets & JSON summaries
+│   ├── forecasts/                      # Official forecasts with 75% prediction intervals
 │   └── metrics/                        # Benchmark metrics, feature importance, alert CSVs
 ├── src/
 │   ├── data/
-│   │   └── clean.py                    # Production cleaning & deduplication
+│   │   └── clean.py                    # Production cleaning & causal imputation
 │   ├── features/
 │   │   └── build_features.py           # Feature engineering & lag generator
 │   ├── models/
 │   │   ├── baselines.py                # Reference baseline implementations
 │   │   ├── train.py                    # Model training & persistence
+│   │   ├── uncertainty.py              # Walk-forward 75% interval calibration
 │   │   └── predict.py                  # Zero-leakage recursive forecasting engine
 │   ├── evaluation/
 │   │   ├── metrics.py                  # Standardized metric formulas (WAPE, sMAPE, etc.)
@@ -329,8 +382,9 @@ djezzy-traffic-forecasting/
 ├── dashboard/
 │   └── app.py                          # Streamlit Operations & Decision-Support UI
 ├── tests/
-│   ├── test_clean.py                   # Data cleaning test suite
+│   ├── test_clean.py                   # Data cleaning & causal imputation tests
 │   ├── test_features.py                # Feature pipeline test suite
+│   ├── test_intervals.py               # 75% prediction interval test suite
 │   └── test_leakage_and_forecast.py    # Temporal leakage & forecast test suite
 ├── requirements.txt                    # Pinned production dependencies
 ├── run_pipeline.py                     # Master pipeline execution script

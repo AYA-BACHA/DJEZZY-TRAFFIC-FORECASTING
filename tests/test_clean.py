@@ -17,6 +17,7 @@ from src.data.clean import (
     deduplicate,
     fix_kpi_ranges,
     fix_congestion_flag,
+    impute_missing_values,
     validate_cleaned,
     TECH_MAP,
 )
@@ -171,3 +172,44 @@ class TestValidateCleaned:
         df_in.loc[0, "technology"] = "LTE"  # not canonical
         result = validate_cleaned(df_in)
         assert result is False
+
+
+class TestCausalImputation:
+    """Ensure imputation is strictly forward/causal and does not leak future values to the past."""
+
+    def test_leading_nan_does_not_use_bfill(self, minimal_df):
+        # With bfill(), index 0 would be populated with the future value from index 1.
+        df = minimal_df.copy()
+        future_val_at_t1 = 888.88
+        df.loc[0, "dl_traffic_volume_gb"] = np.nan
+        df.loc[1, "dl_traffic_volume_gb"] = future_val_at_t1
+
+        out = impute_missing_values(df)
+        val0 = out.loc[0, "dl_traffic_volume_gb"]
+
+        # val0 must NOT equal future_val_at_t1 (which is what bfill() would produce)
+        assert val0 != future_val_at_t1, f"bfill() was used: index 0 peeked at index 1 ({val0})"
+        assert not pd.isna(val0), "Leading NaN was not imputed"
+
+    def test_holdout_future_values_do_not_affect_pre_holdout_imputation(self, minimal_df):
+        # Create a dataframe with pre-holdout rows and a post-holdout row
+        df1 = minimal_df.copy()
+        df1.loc[0, "dl_traffic_volume_gb"] = np.nan
+        # Add a holdout row
+        holdout_row = df1.iloc[-1:].copy()
+        holdout_row["timestamp"] = pd.Timestamp("2025-11-15 12:00:00", tz="Africa/Algiers")
+        holdout_row["dl_traffic_volume_gb"] = 5.0
+        df1 = pd.concat([df1, holdout_row], ignore_index=True)
+
+        out1 = impute_missing_values(df1)
+        val1 = out1.loc[0, "dl_traffic_volume_gb"]
+
+        # Now corrupt the holdout value to an extreme number
+        df2 = df1.copy()
+        df2.loc[df2["timestamp"] >= "2025-11-01", "dl_traffic_volume_gb"] = 999999.0
+
+        out2 = impute_missing_values(df2)
+        val2 = out2.loc[0, "dl_traffic_volume_gb"]
+
+        # The imputed value for the pre-holdout row must be completely unchanged by holdout values
+        assert val1 == val2, f"Holdout future data leaked into pre-holdout imputation: val1={val1} != val2={val2}"

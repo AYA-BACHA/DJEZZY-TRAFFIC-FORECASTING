@@ -34,6 +34,10 @@ from src.features.build_features import (
     add_metadata_features,
     add_temporal_features,
 )
+from src.models.uncertainty import (
+    apply_prediction_intervals,
+    load_calibration_intervals,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -249,6 +253,8 @@ def run_prediction_pipeline(config_path: str = "config/config.yaml") -> dict:
         log.error("Could not find trained models in %s", models_dir)
         return {}
 
+    intervals_cfg = load_calibration_intervals(models_dir)
+
     cell_ids = sorted(df["cell_id"].unique())
     log.info("Generating forecasts across %d cells starting from %s (%s)", len(cell_ids), origin, tz)
 
@@ -284,6 +290,17 @@ def run_prediction_pipeline(config_path: str = "config/config.yaml") -> dict:
         df_dl_all["horizon"] = h_name
         df_prb_all["horizon"] = h_name
 
+        # Apply 75% empirical prediction intervals calibrated on pre-holdout validation
+        df_dl_all = apply_prediction_intervals(df_dl_all, intervals_cfg, "dl_traffic_volume_gb", h_name)
+        df_prb_all = apply_prediction_intervals(df_prb_all, intervals_cfg, "prb_utilization_pct", h_name)
+
+        col_order = [
+            "timestamp", "cell_id", "site_id", "wilaya_name", "technology",
+            "area_type", "target", "predicted", "lower_75", "upper_75", "horizon"
+        ]
+        df_dl_all = df_dl_all[[c for c in col_order if c in df_dl_all.columns]]
+        df_prb_all = df_prb_all[[c for c in col_order if c in df_prb_all.columns]]
+
         # Save DL files
         alias = "short" if h_name == "24h" else "long"
         for suffix in [h_name, alias]:
@@ -297,7 +314,10 @@ def run_prediction_pipeline(config_path: str = "config/config.yaml") -> dict:
             df_prb_all.to_parquet(p_prb, index=False, engine="pyarrow")
             df_prb_all.to_csv(c_prb, index=False)
 
-        log.info("Saved %d DL rows and %d PRB rows in %.2fs", len(df_dl_all), len(df_prb_all), time.time() - t0)
+        mean_w_dl = float((df_dl_all["upper_75"] - df_dl_all["lower_75"]).mean())
+        mean_w_prb = float((df_prb_all["upper_75"] - df_prb_all["lower_75"]).mean())
+        log.info("Saved %d DL rows (mean 75%% width: %.2f GB) and %d PRB rows (mean 75%% width: %.2f%%) in %.2fs",
+                 len(df_dl_all), mean_w_dl, len(df_prb_all), mean_w_prb, time.time() - t0)
 
         results["dl_traffic_volume_gb"][h_name] = {
             "n_rows": len(df_dl_all),
@@ -307,6 +327,7 @@ def run_prediction_pipeline(config_path: str = "config/config.yaml") -> dict:
             "mean_predicted": float(df_dl_all["predicted"].mean()),
             "max_predicted": float(df_dl_all["predicted"].max()),
             "min_predicted": float(df_dl_all["predicted"].min()),
+            "mean_interval_width_75": mean_w_dl,
         }
         results["prb_utilization_pct"][h_name] = {
             "n_rows": len(df_prb_all),
@@ -316,6 +337,7 @@ def run_prediction_pipeline(config_path: str = "config/config.yaml") -> dict:
             "mean_predicted": float(df_prb_all["predicted"].mean()),
             "max_predicted": float(df_prb_all["predicted"].max()),
             "min_predicted": float(df_prb_all["predicted"].min()),
+            "mean_interval_width_75": mean_w_prb,
         }
 
     summary_path = forecasts_dir / "forecast_summary.json"

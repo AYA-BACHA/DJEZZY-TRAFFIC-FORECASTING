@@ -5,18 +5,20 @@
       "n_cells": 78,
       "forecast_start": "2026-01-01 00:00:00+01:00",
       "forecast_end": "2026-01-01 23:00:00+01:00",
-      "mean_predicted": 24.006164972947673,
-      "max_predicted": 376.10912588343564,
-      "min_predicted": 0.4433265252062691
+      "mean_predicted": 24.00616768162393,
+      "max_predicted": 376.1091,
+      "min_predicted": 0.4433,
+      "mean_interval_width_75": 2.5041625534188037
     },
     "7d": {
       "n_rows": 13104,
       "n_cells": 78,
       "forecast_start": "2026-01-01 00:00:00+01:00",
       "forecast_end": "2026-01-07 23:00:00+01:00",
-      "mean_predicted": 38.068075001832426,
-      "max_predicted": 494.08391170060435,
-      "min_predicted": 0.4433265252062691
+      "mean_predicted": 38.06807346611721,
+      "max_predicted": 494.0839,
+      "min_predicted": 0.4433,
+      "mean_interval_width_75": 9.060374885531136
     }
   },
   "prb_utilization_pct": {
@@ -25,18 +27,20 @@
       "n_cells": 78,
       "forecast_start": "2026-01-01 00:00:00+01:00",
       "forecast_end": "2026-01-01 23:00:00+01:00",
-      "mean_predicted": 41.67364347627732,
-      "max_predicted": 97.02600681752278,
-      "min_predicted": 7.342564333730451
+      "mean_predicted": 41.67364342948718,
+      "max_predicted": 97.026,
+      "min_predicted": 7.3426,
+      "mean_interval_width_75": 10.405279326923077
     },
     "7d": {
       "n_rows": 13104,
       "n_cells": 78,
       "forecast_start": "2026-01-01 00:00:00+01:00",
       "forecast_end": "2026-01-07 23:00:00+01:00",
-      "mean_predicted": 42.668559406530356,
-      "max_predicted": 97.17675949357229,
-      "min_predicted": 7.342564333730451
+      "mean_predicted": 42.66855949328449,
+      "max_predicted": 97.1768,
+      "min_predicted": 7.3426,
+      "mean_interval_width_75": 11.336445291514043
     }
   }
 }

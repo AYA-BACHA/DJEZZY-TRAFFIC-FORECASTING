@@ -290,24 +290,23 @@ def impute_missing_values(df: pd.DataFrame) -> pd.DataFrame:
         # Create imputation flag
         df[f"{col}_imputed"] = df[col].isna().astype(int)
 
-        # Strategy: forward-fill within cell, then backward-fill, then cell median
-        df[col] = df.groupby("cell_id")[col].transform(
-            lambda s: s.ffill().bfill()
-        )
+        # Strategy: Strictly causal forward-fill within cell (zero lookahead leakage).
+        # Any leading missing values before the cell's first observation are filled using
+        # the pre-holdout historical training median, NEVER future observations (no bfill).
+        df[col] = df.groupby("cell_id")[col].transform(lambda s: s.ffill())
 
-    # Post-imputation: re-enforce active_users <= rrc_connected_users
-    if "active_users" in df.columns and "rrc_connected_users" in df.columns:
-        mask_fix = df["active_users"] > df["rrc_connected_users"]
-        if mask_fix.sum() > 0:
-            log.info("  Post-imputation: correcting %d rows where active_users > rrc", mask_fix.sum())
-            df.loc[mask_fix, "active_users"] = df.loc[mask_fix, "rrc_connected_users"]
-
-        # If still missing (e.g. cell with all-null), fill with overall median
+        # If any leading rows remain missing, fill with pre-holdout training median
         still_missing = df[col].isna()
         if still_missing.sum() > 0:
-            median_val = df[col].median()
-            df.loc[still_missing, col] = median_val
-            log.info("    %d rows filled with overall median (%.4f)", still_missing.sum(), median_val)
+            # Compute median strictly on pre-holdout training data if timestamp available
+            if "timestamp" in df.columns:
+                holdout_cutoff = pd.Timestamp("2025-11-01", tz="Africa/Algiers")
+                tr_mask = (df["timestamp"] < holdout_cutoff) & df[col].notna()
+                train_median = float(df.loc[tr_mask, col].median()) if tr_mask.sum() > 0 else float(df[col].median())
+            else:
+                train_median = float(df[col].median())
+            df.loc[still_missing, col] = train_median
+            log.info("    %d leading missing values filled with pre-holdout median (%.4f)", still_missing.sum(), train_median)
 
     # cell_availability: outage flag
     df["outage_flag"] = (df["cell_availability_pct"] < 50).astype(int)
